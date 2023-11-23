@@ -3,10 +3,6 @@ import config from "../config";
 
 const computerVision = express.Router();
 
-// curl.exe -H "Ocp-Apim-Subscription-Key: <subscriptionKey>" -H "Content-Type: application/json"
-// "https://<endpoint>/computervision/imageanalysis:analyze?features=caption,read&model-version=latest&language=en&api-version=2023-02-01-preview"
-// -d "{'url':'https://learn.microsoft.com/azure/ai-services/computer-vision/media/quickstarts/presentation.png'}"
-
 computerVision.post("/getImageTags", async (req, res) => {
   // const { image } = req.body;
   const image =
@@ -25,7 +21,6 @@ computerVision.post("/getImageTags", async (req, res) => {
     }),
   };
 
-  // const apiUrl = `${config.endpoint}computervision/imageanalysis:analyze?features=caption,read&model-version=latest&language=en&api-version=2023-02-01-preview`;
   const apiUrl = `${config.endpoint}computervision/imageanalysis:analyze?api-version=2023-02-01-preview&features=Tags`;
   console.log("apiUrl", apiUrl);
   const response = await fetch(apiUrl, init);
@@ -35,7 +30,7 @@ computerVision.post("/getImageTags", async (req, res) => {
   // Logic to create a new task
   // Access data from req.body
   // Save to database
-  res.status(201).json(data);
+  res.status(200).json(data);
 });
 
 computerVision.get("/test", (req, res) => {
