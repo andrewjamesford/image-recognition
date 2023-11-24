@@ -1,37 +1,54 @@
 import express from "express";
+import multer from "multer";
 import config from "../config";
+import fs from "fs";
 
 const computerVision = express.Router();
 
-computerVision.post("/getImageTags", async (req, res) => {
-  // const { image } = req.body;
-  const image =
-    "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.v5IqxXoTPlVn9MK6qUcK-QHaE8%26pid%3DApi&f=1&ipt=2a110bc5b82ae462420540ecc84521dc8b60860317bb86d0d56680486696ff3c&ipo=images";
-  console.log("apiKey", config.apiKey);
+const upload = multer({ dest: "uploads/" });
 
-  const headersInit: HeadersInit = {
-    "Content-Type": "application/json",
-    "Ocp-Apim-Subscription-Key": config.apiKey,
-  };
-  const init: RequestInit = {
-    method: "POST",
-    headers: headersInit,
-    body: JSON.stringify({
-      url: image,
-    }),
-  };
+computerVision.post(
+  "/getImageTags",
+  upload.single("imageFile"),
+  async (req, res) => {
+    if (!req.file) {
+      res.status(400).json({ error: "No image file provided" });
+      return;
+    }
+    const imageFilePath = req.file.path;
+    const imageFileData = fs.readFileSync(imageFilePath);
+    const imageBase64Data = Buffer.from(imageFileData).toString("base64");
 
-  const apiUrl = `${config.endpoint}computervision/imageanalysis:analyze?api-version=2023-02-01-preview&features=Tags`;
-  console.log("apiUrl", apiUrl);
-  const response = await fetch(apiUrl, init);
+    // console.log("imageFile", imageFile);
+    const imageFile =
+      "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.v5IqxXoTPlVn9MK6qUcK-QHaE8%26pid%3DApi&f=1&ipt=2a110bc5b82ae462420540ecc84521dc8b60860317bb86d0d56680486696ff3c&ipo=images";
+    // console.log("apiKey", config.apiKey);
 
-  const data = await response.json();
+    const headersInit: HeadersInit = {
+      "Content-Type": "application/json",
+      "Ocp-Apim-Subscription-Key": config.apiKey,
+    };
+    const init: RequestInit = {
+      method: "POST",
+      headers: headersInit,
+      body: JSON.stringify({
+        url: imageFile,
+      }),
+    };
+    const apiUrl = `${config.endpoint}computervision/imageanalysis:analyze?overload=stream&api-version=2023-02-01-preview&features=Tags`;
+    console.log("apiUrl", apiUrl);
+    const response = await fetch(apiUrl, init);
 
-  // Logic to create a new task
-  // Access data from req.body
-  // Save to database
-  res.status(200).json(data);
-});
+    const data = await response.json();
+    console.log("data", data);
+
+    // Logic to create a new task
+    // Access data from req.body
+    // Save to database
+    // res.status(200).json(data);
+    res.status(200).json({ message: "getImageTags", data: data });
+  }
+);
 
 computerVision.get("/test", (req, res) => {
   const result = { message: "computerVision test" };
