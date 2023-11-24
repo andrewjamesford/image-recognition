@@ -22,7 +22,7 @@ computerVision.post(
     // console.log("imageFile", imageFile);
     const imageFile =
       "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.v5IqxXoTPlVn9MK6qUcK-QHaE8%26pid%3DApi&f=1&ipt=2a110bc5b82ae462420540ecc84521dc8b60860317bb86d0d56680486696ff3c&ipo=images";
-    // console.log("apiKey", config.apiKey);
+    console.log("apiKey", config.apiKey);
 
     const headersInit: HeadersInit = {
       "Content-Type": "application/json",
@@ -32,7 +32,7 @@ computerVision.post(
       method: "POST",
       headers: headersInit,
       body: JSON.stringify({
-        url: imageFile,
+        url: imageBase64Data,
       }),
     };
     const apiUrl = `${config.endpoint}computervision/imageanalysis:analyze?overload=stream&api-version=2023-02-01-preview&features=Tags`;
@@ -40,7 +40,9 @@ computerVision.post(
     const response = await fetch(apiUrl, init);
 
     const data = await response.json();
-    console.log("data", data);
+    if (data.error) {
+      res.status(400).json({ error: data.error });
+    }
 
     // Logic to create a new task
     // Access data from req.body
