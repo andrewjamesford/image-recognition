@@ -1,3 +1,5 @@
+# Image Recognition App
+
 This is an example application that demonstrates how to implement image recognition in a web app using React for the frontend and Node.js for the backend.
 
 ## Features
