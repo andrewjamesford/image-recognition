@@ -17,44 +17,27 @@ const App = () => {
    */
   const handleURLPost = async (event: React.FormEvent) => {
     event.preventDefault();
-
-    // make a POST request to the server
-    const response = await fetch(
-      `${import.meta.env.VITE_API_HOST}/api/v1/computerVision/getImageTags/`,
-      {
-        method: "POST", // or 'PUT'
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ imageUrl: url }),
-      }
-    );
-
-    const result = await response.json();
-    postData(
+    // call the post data function
+    const result = await postData(
       `${import.meta.env.VITE_API_HOST}/api/v1/computerVision/getImageTags/`,
       url
-    ).then((data) => {
-      setResult(data);
-    });
+    );
+
+    setResult(result);
   };
 
-  const postData = async (url: string, data: any) => {
+  const postData = async (url: string, data: string) => {
     // Default options are marked with *
     const response = await fetch(url, {
       method: "POST", // *GET, POST, PUT, DELETE, etc.
-      // mode: "cors", // no-cors, *cors, same-origin
       cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-      // credentials: "same-origin", // include, *same-origin, omit
       headers: {
         "Content-Type": "application/json",
-        // 'Content-Type': 'application/x-www-form-urlencoded',
       },
-      // redirect: "follow", // manual, *follow, error
-      // referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
       body: JSON.stringify({ imageUrl: data }), // body data type must match "Content-Type" header
     });
-    return response.json(); // parses JSON response into native JavaScript
+    const result = await response.json();
+    return result.data; // parses JSON response into native JavaScript
   };
 
   /**
@@ -81,7 +64,10 @@ const App = () => {
                     Add a URL to an image and click the Process button to get
                     the image tags
                   </p>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                  {result.length > 0 && (
+                    <h3 className="text-lg font-semibold mt-8">Tags</h3>
+                  )}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {result &&
                       result.map((tag) => (
                         <div className="" key={tag.name}>
