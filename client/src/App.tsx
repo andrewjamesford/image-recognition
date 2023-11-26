@@ -1,80 +1,126 @@
 import { useState } from "react";
 import "./App.css";
-import axios from "axios";
+
+// type for the tag object
+type Tag = {
+  name: string;
+  confidence: number;
+};
 
 const App = () => {
-  const [image, setImage] = useState<File | string>("");
+  const [url, setURL] = useState<string>("");
+  const [result, setResult] = useState<Tag[]>([]);
 
-  const handleImageUpload = (event: React.FormEvent) => {
-    console.log("handleImageUpload", event);
+  /**
+   * Handles the submit event of the URL form.
+   * @param event - The submit event object.
+   */
+  const handleURLPost = async (event: React.FormEvent) => {
     event.preventDefault();
-    // handle image upload logic here
 
-    // create a new FormData object
-    const formData = new FormData();
-    // add the image to formData object
-    formData.append("imageFile", image);
     // make a POST request to the server
-    axios
-      .post(
-        `${import.meta.env.VITE_API_HOST}/api/v1/computerVision/getImageTags/`,
-        formData
-      )
-      .then((response) => {
-        console.log(response, response);
-      });
+    const response = await fetch(
+      `${import.meta.env.VITE_API_HOST}/api/v1/computerVision/getImageTags/`,
+      {
+        method: "POST", // or 'PUT'
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ imageUrl: url }),
+      }
+    );
+
+    const result = await response.json();
+    postData(
+      `${import.meta.env.VITE_API_HOST}/api/v1/computerVision/getImageTags/`,
+      url
+    ).then((data) => {
+      setResult(data);
+    });
   };
 
-  const handFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setImage(event.target.files![0]);
+  const postData = async (url: string, data: any) => {
+    // Default options are marked with *
+    const response = await fetch(url, {
+      method: "POST", // *GET, POST, PUT, DELETE, etc.
+      // mode: "cors", // no-cors, *cors, same-origin
+      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+      // credentials: "same-origin", // include, *same-origin, omit
+      headers: {
+        "Content-Type": "application/json",
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      // redirect: "follow", // manual, *follow, error
+      // referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      body: JSON.stringify({ imageUrl: data }), // body data type must match "Content-Type" header
+    });
+    return response.json(); // parses JSON response into native JavaScript
+  };
+
+  /**
+   * Handles the change event of the URL input field.
+   * @param event - The change event object.
+   */
+  const handleURLChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setURL(event.target.value);
   };
 
   return (
     <>
       <div className="flex items-center justify-center h-screen">
         <div
-          className="rounded-lg border bg-card text-card-foreground shadow-sm"
+          className="rounded-lg border bg-card text-card-foreground shadow-sm max-w-lg"
           data-v0-t="card"
         >
           <div className="p-6">
             <div className="space-y-8">
               <div className="space-y-2">
-                <h2 className="text-3xl font-semibold">Upload Image</h2>
-                <p className="text-zinc-500 dark:text-zinc-400">
-                  Upload an image of the type of car you wish to buy.
-                  {image && image.toString()}
-                </p>
+                <h2 className="text-3xl font-semibold">Process Image URL</h2>
+                <div className="text-zinc-500 dark:text-zinc-400">
+                  <p>
+                    Add a URL to an image and click the Process button to get
+                    the image tags
+                  </p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                    {result &&
+                      result.map((tag) => (
+                        <div className="" key={tag.name}>
+                          {tag.name}
+                        </div>
+                      ))}
+                  </div>
+                </div>
               </div>
               <form
                 method="POST"
                 action="#"
                 className="space-y-6"
-                // onSubmit={handleImageUpload}
+                onSubmit={handleURLPost}
+                id="urlForm"
               >
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <label
                       className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      htmlFor="imageFile"
+                      htmlFor="urlLink"
                     >
-                      Image
+                      URL to Image
                     </label>
                     <input
-                      type="file"
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      id="imageFile"
-                      placeholder="Enter your email"
+                      type="text"
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      id="urlLink"
+                      placeholder="Enter the URL to the image"
                       required
-                      onChange={handFileChange}
+                      onChange={handleURLChange}
                     />
                   </div>
 
                   <button
                     className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-primary/90 h-10 px-4 py-2 bg-gray-800 text-white"
                     type="submit"
-                    onClick={handleImageUpload}
                   >
-                    Upload Image
+                    Process
                   </button>
                 </div>
               </form>
