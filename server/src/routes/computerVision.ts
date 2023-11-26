@@ -37,17 +37,17 @@ computerVision.post("/getImageTags", async (req: Request, res: Response) => {
 
   const data = await response.json();
   if (data.error || data === undefined) {
-    res.status(400).json({ error: data.error });
+    return res.status(400).json({ error: data.error });
   }
 
   // Get data from response
-  const tags: Tag[] = data?.tagsResult.values ? data.tagsResult.values : [];
+  const tags: Tag[] = data?.tagsResult?.values ? data.tagsResult.values : [];
 
   // Logic to create a new task
   // Access data from req.body
   // Save to database
   // res.status(200).json(data);
-  res.status(200).json({ data: tags });
+  return res.status(200).json({ data: tags });
 });
 
 computerVision.get("/test", (req, res) => {
@@ -55,7 +55,7 @@ computerVision.get("/test", (req, res) => {
 
   // Logic to fetch task data from database
   // Send task data as response
-  res.status(200).json(result);
+  return res.status(200).json(result);
 });
 
 export default computerVision;

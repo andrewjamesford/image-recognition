@@ -42,6 +42,28 @@ describe("Computer Vision Router", () => {
       .expect(200, expected, done);
   });
 
+  it("Should NOT return image analysis", (done) => {
+    const expected = {
+      error: {
+        code: "InvalidRequest",
+        message: "Image format is not valid.",
+        innererror: {
+          code: "InvalidImageFormat",
+          message: "Input data is not a valid image.",
+        },
+      },
+    };
+    const imageUrl = "https://duckduckgo.com";
+    request(app)
+      .post(`/api/v1/computervision/getImageTags`)
+      .send({
+        imageUrl: imageUrl,
+      })
+      .set("Accept", "application/json")
+      .expect("Content-Type", /json/)
+      .expect(400, expected, done);
+  });
+
   it("Should get test", (done) => {
     const expected = { message: "computerVision test" };
     request(app)
