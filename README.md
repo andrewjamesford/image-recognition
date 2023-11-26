@@ -23,7 +23,7 @@ This is an example application that demonstrates how to implement image recognit
 
 1. Open the app in your web browser.
 2. Select a public image url to send to the image recognition API.
-3. Click the "Upload" button to upload the image and analyze it.
+3. Click the "Process" button to upload the image and analyze it.
 
 ## API
 
@@ -37,4 +37,4 @@ Contributions are welcome! Please open an issue or submit a pull request.
 
 ## License
 
-This project is licensed under the terms of the MIT license.
+This project is licensed under the GPL-3.0 License.
